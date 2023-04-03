@@ -23,6 +23,5 @@ class HelloTest {
         StepVerifier.create(hello.name())
                 .expectNext("Alex")
                 .verifyComplete();
-
     }
 }
