@@ -18,4 +18,9 @@ public class Hello {
     public Mono<String> name(){
         return Mono.just("Alex");
     }
+
+    public Flux<String> splitNames(String s){
+        var charArrays = s.split("");
+        return Flux.fromArray(charArrays);
+    }
 }

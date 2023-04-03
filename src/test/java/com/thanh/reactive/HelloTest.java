@@ -24,4 +24,20 @@ class HelloTest {
                 .expectNext("Alex")
                 .verifyComplete();
     }
+
+    @Test
+    void testFlatMap(){
+        var namesFlux = hello.names();
+
+        var names = namesFlux.filter(s -> s.length() > 3)
+                .map(String::toUpperCase)
+                .flatMap(s -> hello.splitNames(s))
+                .log();
+
+        StepVerifier.create(names)
+                .expectNext("A")
+                .expectNextCount(8)
+                .expectComplete();
+
+    }
 }
