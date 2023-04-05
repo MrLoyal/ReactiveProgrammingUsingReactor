@@ -19,14 +19,14 @@ class HelloTest {
     }
 
     @Test
-    void testMonoName(){
+    void testMonoName() {
         StepVerifier.create(hello.name())
                 .expectNext("Alex")
                 .verifyComplete();
     }
 
     @Test
-    void testFlatMap(){
+    void testFlatMap() {
         var namesFlux = hello.names();
 
         var names = namesFlux.filter(s -> s.length() > 3)
@@ -39,5 +39,23 @@ class HelloTest {
                 .expectNextCount(8)
                 .expectComplete();
 
+    }
+
+    @Test
+    void testDelayed() {
+        var names = hello.names();
+
+        var flux = names.filter(s -> s.length() > 3)
+                .flatMap(s -> hello.splitNamesWithDelay(s));
+        //flux.subscribe();
+        StepVerifier.create(flux)
+                //.expectNext("a")
+                .expectNextCount(14)
+                .verifyComplete();
+    }
+
+    @Test
+    void hello(){
+        hello.hello();
     }
 }
