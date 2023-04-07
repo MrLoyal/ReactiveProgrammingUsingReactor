@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Hello {
@@ -33,10 +34,15 @@ public class Hello {
 
     public Flux<String> splitNamesWithDelay(String name){
         Random random = new Random();
-        int rand = 999; // = random.nextInt(1000);
+        int rand = random.nextInt(1000);
         var charArrays = name.split("");
         return Flux.fromArray(charArrays)
-                .delayElements(Duration.ofMillis(rand))
-                .log();
+                .delayElements(Duration.ofMillis(rand));
+    }
+
+    public Mono<List<String>> monoNameAsList(String name){
+        String[] charArray = name.split("");
+        List<String> list = List.of(charArray);
+        return Mono.just(list);
     }
 }
