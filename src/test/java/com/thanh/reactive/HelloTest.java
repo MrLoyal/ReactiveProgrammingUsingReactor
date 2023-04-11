@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -103,6 +104,28 @@ class HelloTest {
                 .log();
         StepVerifier.create(m)
                 .expectNext(List.of("E", "m", "i", "l", "y"))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFlatMapMany(){
+        Flux<String> flux = Mono.just("Alex")
+                .flatMapMany(s -> hello.splitNames(s))
+                .log();
+
+        StepVerifier.create(flux)
+                .expectNext("A", "l", "e", "x")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testTransform(){
+        Function<Flux<String>, Flux<String>> transformer = f -> f.map(String::toUpperCase);
+
+        Flux<String> names = Flux.fromIterable(List.of("Alex", "Bob"));
+        Flux<String> flux = names.transform(transformer)
+                .log();
+        StepVerifier.create(flux).expectNextCount(2)
                 .verifyComplete();
     }
 }
