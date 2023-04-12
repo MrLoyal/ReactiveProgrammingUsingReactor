@@ -128,4 +128,38 @@ class HelloTest {
         StepVerifier.create(flux).expectNextCount(2)
                 .verifyComplete();
     }
+
+    @Test
+    public void testDefault(){
+        Flux.fromIterable(List.of("Alice", "Bob"))
+                .filter(s -> s.length() > 5)
+                .defaultIfEmpty("Carlos")
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("Carlos")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSwitchIfEmpty(){
+
+        Function<Flux<String>, Flux<String>> transformer = stringFlux -> {
+            // Alice, Bob
+            // --> A,l,i,c,e,B,o,b
+            return stringFlux.flatMap(name -> hello.splitNames(name));
+        };
+
+        Flux<String> defaultFlux = Flux.just("Daniel")
+                .transform(transformer)
+                .log();
+
+        Flux.fromIterable(List.of("Alice", "Bob"))
+                .filter(s -> s.length() > 5)
+                .switchIfEmpty(defaultFlux)
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("D")
+                .expectNextCount(5)
+                .verifyComplete();
+    }
 }
