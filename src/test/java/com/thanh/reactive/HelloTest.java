@@ -8,8 +8,6 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class HelloTest {
 
     Hello hello = new Hello();
@@ -108,7 +106,7 @@ class HelloTest {
     }
 
     @Test
-    public void testFlatMapMany(){
+    public void testFlatMapMany() {
         Flux<String> flux = Mono.just("Alex")
                 .flatMapMany(s -> hello.splitNames(s))
                 .log();
@@ -119,7 +117,7 @@ class HelloTest {
     }
 
     @Test
-    public void testTransform(){
+    public void testTransform() {
         Function<Flux<String>, Flux<String>> transformer = f -> f.map(String::toUpperCase);
 
         Flux<String> names = Flux.fromIterable(List.of("Alex", "Bob"));
@@ -130,7 +128,7 @@ class HelloTest {
     }
 
     @Test
-    public void testDefault(){
+    public void testDefault() {
         Flux.fromIterable(List.of("Alice", "Bob"))
                 .filter(s -> s.length() > 5)
                 .defaultIfEmpty("Carlos")
@@ -141,7 +139,7 @@ class HelloTest {
     }
 
     @Test
-    public void testSwitchIfEmpty(){
+    public void testSwitchIfEmpty() {
 
         Function<Flux<String>, Flux<String>> transformer = stringFlux -> {
             // Alice, Bob
@@ -161,5 +159,65 @@ class HelloTest {
                 .expectNext("D")
                 .expectNextCount(5)
                 .verifyComplete();
+    }
+
+
+    @Test
+    public void testConcat() {
+        hello.hiConcat()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A", "B", "C", "D", "E", "F")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMerge(){
+        hello.hiMerge().log()
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectNextCount(5)
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testFluxMergeWith(){
+        hello.hiMergeWith().log()
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectNextCount(4)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFluxMergeSequential(){
+        hello.hiMergeSequential()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectNextCount(5)
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testZip(){
+        hello.hiZip()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A-D")
+                .expectNextCount(2)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testError(){
+        hello.hiError()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A", "B")
+                .expectError()
+                .verify();
     }
 }
