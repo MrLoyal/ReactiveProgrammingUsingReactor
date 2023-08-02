@@ -12,6 +12,8 @@ class HelloTest {
 
     Hello hello = new Hello();
 
+    HelloMono helloMono = new HelloMono();
+
     @Test
     void testName() {
         Flux<String> namesFlux = hello.names();
@@ -172,7 +174,7 @@ class HelloTest {
     }
 
     @Test
-    public void testMerge(){
+    public void testMerge() {
         hello.hiMerge().log()
                 .as(StepVerifier::create)
                 .expectNext("A")
@@ -182,7 +184,7 @@ class HelloTest {
 
 
     @Test
-    public void testFluxMergeWith(){
+    public void testFluxMergeWith() {
         hello.hiMergeWith().log()
                 .as(StepVerifier::create)
                 .expectNext("A")
@@ -191,7 +193,7 @@ class HelloTest {
     }
 
     @Test
-    public void testFluxMergeSequential(){
+    public void testFluxMergeSequential() {
         hello.hiMergeSequential()
                 .log()
                 .as(StepVerifier::create)
@@ -202,7 +204,7 @@ class HelloTest {
 
 
     @Test
-    public void testZip(){
+    public void testZip() {
         hello.hiZip()
                 .log()
                 .as(StepVerifier::create)
@@ -212,12 +214,73 @@ class HelloTest {
     }
 
     @Test
-    public void testError(){
+    public void testError() {
         hello.hiError()
                 .log()
                 .as(StepVerifier::create)
                 .expectNext("A", "B")
                 .expectError()
                 .verify();
+    }
+
+    @Test
+    public void exploreOnErrorReturn() {
+        hello.exploreOnErrorReturn()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A", "B", "C", "Default")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreOnErrorResumeTest() {
+        hello.exploreOnErrorResume()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A", "B", "C", "D", "E")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreOnErrorContinueTest(){
+        hello.exploreOnErrorContinue()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectNext("C")
+                .expectNext("D")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreOnErrorMapTest(){
+        hello.exploreOnErrorMap()
+                .log()
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectError()
+                .verify();
+    }
+
+    @Test
+    void exploreDoOnErrorTest(){
+        hello.exploreDoOnError()
+                .log()
+                .doOnError(error -> {
+                    System.out.println("Doing on error:");
+                    System.out.println("  error is of type: " + error.getClass().getName());
+                })
+                .as(StepVerifier::create)
+                .expectNext("A")
+                .expectError()
+                .verify();
+    }
+
+    @Test
+    void exploreMonoOnErrorContinue(){
+        helloMono.exploreOnErrorContinue()
+                .log()
+                .as(StepVerifier::create)
+                .verifyError();
     }
 }

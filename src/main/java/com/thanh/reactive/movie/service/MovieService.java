@@ -38,7 +38,10 @@ public class MovieService {
 
     public Mono<Movie> findById(long movieId){
         Mono<MovieInfo> movieInfoMono = movieInfoService.findById(movieId);
-        Mono<List<Review>> reviewListMono = reviewService.findAllByMovieInfoId(movieId).collectList();
+        Mono<List<Review>> reviewListMono = reviewService
+                .findAllByMovieInfoId(movieId)
+                .collectList()
+                .retry();
 
         return movieInfoMono.zipWith(reviewListMono, (movieInfo, reviewList) -> {
             Movie movie = new Movie();

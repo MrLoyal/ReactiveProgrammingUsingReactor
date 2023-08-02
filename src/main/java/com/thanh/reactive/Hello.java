@@ -101,4 +101,69 @@ public class Hello {
                 .concatWith(Flux.error(new RuntimeException("An error occurred")))
                 .concatWith(Flux.just("C"));
     }
+
+
+    public Flux<String> exploreOnErrorReturn() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("An error occurred")))
+                .concatWith(Flux.just("D"))
+                .onErrorReturn("Default");
+    }
+
+
+    public Flux<String> exploreOnErrorResume() {
+        return Flux.just("A", "B", "C")
+                .concatWith(Flux.error(new RuntimeException("The RuntimeException")))
+                .onErrorResume(ex -> {
+                    System.out.println("Resuming from error:");
+                    System.out.println("    An error occurred: " + ex.getMessage());
+                    return Flux.just("D", "E");
+                });
+    }
+
+    public Flux<String> exploreOnErrorContinue() {
+        return Flux.just("A", "B", "C")
+                .map(s -> {
+                    if ("B".equals(s)) {
+                        throw new RuntimeException("B is exceptional");
+                    } else {
+                        return s;
+                    }
+                })
+                .concatWith(Flux.just("D"))
+                .onErrorContinue((ex, obj) -> {
+                    System.out.println("Continuing on Error:");
+                    System.out.println("  Exception message: " + ex.getMessage());
+                    System.out.println("  Object: " + obj);
+                });
+    }
+
+    public Flux<String> exploreOnErrorMap() {
+        return Flux.just("A", "B", "C")
+                .map(s -> {
+                    if ("B".equals(s)) {
+                        throw new IllegalStateException("B is exceptional");
+                    } else {
+                        return s;
+                    }
+                })
+                .concatWith(Flux.just("D"))
+                .onErrorMap(RuntimeException::new);
+    }
+
+
+    public Flux<String> exploreDoOnError() {
+        return Flux.just("A", "B", "C")
+                .map(s -> {
+                    if ("B".equals(s)) {
+                        throw new IllegalStateException("B is exceptional");
+                    } else {
+                        return s;
+                    }
+                })
+                .concatWith(Flux.just("D"))
+                ;
+    }
+
+
 }
